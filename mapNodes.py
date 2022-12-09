@@ -2,7 +2,7 @@ import utils
 import requests
 import traceback
 import datetime
-from utils import Utils
+import utils
 import time
 from collections import Counter
 from db import BaseModel
@@ -36,7 +36,7 @@ class MapNodes:
                         ip = gateway['gateway']['host']
                         identityKey = gateway['gateway']['identity_key']
 
-                        country = Utils.getCountry(ip, s, Utils.ipInfoToken)
+                        country = utils.Utils.getCountry(ip, s, "8bee822a8bf50b")
 
                         latitude = country['latitude']
                         longitude = country['longitude']
