@@ -1,0 +1,29 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+requests = "*"
+schedule = "*"
+python-dotenv = "*"
+backoff = "*"
+pandas = "*"
+matplotlib = "*"
+geopandas = "*"
+plotly = "*"
+peewee = "*"
+flask = "*"
+cachetools = "*"
+flask-restful = "*"
+gunicorn = "*"
+aiohttp = "*"
+python-dateutil = "*"
+wsgi = "*"
+
+
+[dev-packages]
+
+
+[requires]
+python_version = "3.11"
