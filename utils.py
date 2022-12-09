@@ -14,8 +14,8 @@ load_dotenv()
 
 
 class Utils:
-    ipInfoToken = os.getenv("IPINFO", None)
-
+    IPINFO_TOKEN = os.getenv("IPINFO", None)
+    GATEWAY_LAST_UPDATE_HOUR = int(os.getenv("GATEWAY_LAST_UPDATE_HOUR", 24))
     @staticmethod
     def humanFormat(num, round_to=2):
         # From https://stackoverflow.com/questions/579310/formatting-long-numbers-as-strings-in-python

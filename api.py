@@ -8,6 +8,7 @@ from flask_restful import Resource, Api
 from cachetools import cached, TTLCache
 import mapNodes
 from db import BaseModel, create_tables
+from utils import Utils
 
 app = Flask(__name__)
 api = Api(app)
@@ -34,7 +35,7 @@ class Gateways(Resource):
         data = {}
         db = BaseModel()
 
-        gateways = db.getGateways(intervalHour=3)
+        gateways = db.getGateways(intervalHour=Utils.GATEWAY_LAST_UPDATE_HOUR)
         data.update({
             "gateways": gateways,
             "num_gateways": len(gateways),
