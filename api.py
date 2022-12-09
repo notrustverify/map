@@ -34,7 +34,7 @@ class Gateways(Resource):
         data = {}
         db = BaseModel()
 
-        gateways = db.getGateways(intervalHour=2)
+        gateways = db.getGateways(intervalHour=3)
         data.update({
             "gateways": gateways,
             "num_gateways": len(gateways),
@@ -45,7 +45,7 @@ class Gateways(Resource):
 
 
 def update():
-    if not (exists("./data/data.db")) or getsize("./data/data.db") <=0:
+    if not (exists("./data/data.db")) or getsize("./data/data.db") <= 0:
         create_tables()
 
     main_logger.info('Start DB update thread')

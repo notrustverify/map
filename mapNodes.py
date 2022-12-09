@@ -2,7 +2,7 @@ import utils
 import requests
 import traceback
 import datetime
-import utils
+from utils import Utils
 import time
 from collections import Counter
 from db import BaseModel
@@ -19,8 +19,6 @@ class MapNodes:
 
     def getGateways(self):
         s = requests.Session()
-        ipsPort = dict()
-        selected = dict()
         print(f"{datetime.datetime.utcnow()} - update gateway set")
         countryCounter = {}
         countryCoordinates = []
@@ -36,11 +34,13 @@ class MapNodes:
                         ip = gateway['gateway']['host']
                         identityKey = gateway['gateway']['identity_key']
 
-                        country = utils.Utils.getCountry(ip, s, "8bee822a8bf50b")
+                        ipInfo = utils.Utils.getCountry(ip, s,Utils.ipInfoToken)
 
-                        latitude = country['latitude']
-                        longitude = country['longitude']
-                        country = country['country']
+                        latitude = ipInfo.get('latitude')
+                        longitude = ipInfo.get('longitude')
+                        country = ipInfo.get('country')
+                        org=ipInfo.get('org')
+                        asn=ipInfo.get('asn')
 
                         countryCoordinates.append([latitude,longitude])
 
@@ -48,8 +48,9 @@ class MapNodes:
                             countryCounter[country] = countryCounter[country]+1
                         except KeyError:
                             countryCounter[country] = 1
-                        
-                        self.db.insertGateway(identityKey, ip, latitude, longitude, country)
+
+                        if ipInfo:
+                            self.db.insertGateway(identityKey, ip, latitude, longitude, country,org,asn)
                         
             print(countryCounter)
 

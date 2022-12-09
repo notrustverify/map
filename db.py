@@ -42,7 +42,7 @@ class BaseModel(Model):
         finally:
             self.close()
 
-    def insertGateway(self, identityKey, ip, latitude, longitude, country):
+    def insertGateway(self, identityKey, ip, latitude, longitude, country,org,asn):
         self.connect()
         try:
             with database.atomic():
@@ -50,11 +50,11 @@ class BaseModel(Model):
                 now = datetime.utcnow()
 
                 GatewayCoordinate.insert(identityKey=identityKey, ip=ip, latitude=latitude, longitude=longitude,
-                                         country=country, updated_on=now, created_on=now
+                                         country=country, org=org,asn=asn, updated_on=now, created_on=now
                                          ).on_conflict(action="update", conflict_target=[GatewayCoordinate.identityKey],
                                                        update={'identityKey': identityKey, 'ip': ip,
                                                                'latitude': latitude, 'longitude': longitude,
-                                                               'country': country,
+                                                               'country': country, 'asn': asn,'org': org,
                                                                'updated_on': datetime.utcnow()}).execute()
 
         except IntegrityError as e:
@@ -110,13 +110,13 @@ class BaseModel(Model):
                     nowDelta = datetime.utcnow() - timedelta(hours=intervalHour)
                     return list(GatewayCoordinate.select(GatewayCoordinate.identityKey, GatewayCoordinate.latitude,
                                                          GatewayCoordinate.longitude,
-                                                         GatewayCoordinate.country, GatewayCoordinate.created_on,
+                                                         GatewayCoordinate.country, GatewayCoordinate.asn,GatewayCoordinate.org, GatewayCoordinate.created_on,
                                                          GatewayCoordinate.updated_on).where(
                         GatewayCoordinate.updated_on >= nowDelta).dicts())
 
                 return list(GatewayCoordinate.select(GatewayCoordinate.identityKey, GatewayCoordinate.latitude,
                                                      GatewayCoordinate.longitude,
-                                                     GatewayCoordinate.country, GatewayCoordinate.created_on,
+                                                     GatewayCoordinate.country,GatewayCoordinate.asn,GatewayCoordinate.org, GatewayCoordinate.created_on,
                                                      GatewayCoordinate.updated_on).dicts())
 
         except IntegrityError as e:
@@ -136,9 +136,11 @@ class GatewayCoordinate(BaseModel):
 
     identityKey = TextField(unique=True)
     ip = TextField()
-    latitude = FloatField()
-    longitude = FloatField()
-    country = TextField()
+    latitude = FloatField(null=True)
+    longitude = FloatField(null=True)
+    country = TextField(null=True)
+    org = TextField(null=True)
+    asn = TextField(null=True)
     created_on = DateTimeField(default=datetime.utcnow)
     updated_on = DateTimeField(default=datetime.utcnow)
 

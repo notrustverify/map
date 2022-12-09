@@ -1,18 +1,20 @@
 import os
 import time
 import ipaddress
+import traceback
+
 import requests
 import socket
 from dotenv import load_dotenv
 
 NYM_VALIDATOR_API_BASE = "https://validator.nymtech.net"
+PREFERRED_IPINFO_API = "ipapi"
 
 load_dotenv()
 
 
 class Utils:
-
-    ipInfoToken=os.getenv("IPINFO")
+    ipInfoToken = os.getenv("IPINFO", None)
 
     @staticmethod
     def humanFormat(num, round_to=2):
@@ -22,8 +24,6 @@ class Utils:
             magnitude += 1
             num = round(num / 1000.0, round_to)
         return '{:.{}f} {}'.format(num, round_to, ['', 'K', 'M', 'G', 'T', 'P'][magnitude])
-
-
 
     @staticmethod
     def isIP(ip):
@@ -35,64 +35,70 @@ class Utils:
         return True
 
     @staticmethod
-    def queryIPinfos(ip, s, token=None):
+    def queryIPinfos(ip, s, token, api):
         if not (Utils.isIP(ip)):
             ip = Utils.getIP(ip)
 
-        if token is not None:
+        if api == "ipinfo":
             url = f'https://ipinfo.io/{ip}?token={token}'
-        else:
+        elif api == "ipapi":
             url = f'https://ipapi.co/{ip}/json/'
             time.sleep(1)
 
-        response = s.get(url)
+        try:
+            response = s.get(url)
+            if response.ok:
+                return response.json()
+            else:
+                if response.json().get('reason') == "RateLimited":
+                    return {'error': 'ratelimited'}
 
-        return response
+                if response.json().get('status') == '404':
+                    f"Error {response.json()}"
+                    return {}
+
+                return {}
+        except requests.Timeout as e:
+            print(e)
+            print(traceback.format_exc())
 
     @staticmethod
     def getIP(ip):
         return socket.gethostbyname(ip)
-        
-
 
     @staticmethod
-    def getCountry(ip, s, token=None):
+    def getCountry(ip, s, token, api="ipapi"):
 
         try:
-            sleepTime = 3
-            retries = 1
-            response = Utils.queryIPinfos(ip, s, token)
 
-            if response.ok:
-                data = response.json()
-                # handle error for ipapi
-                if not (token) and response.json().get('error'):
-                    print(f"Error {response.json()}")
-                    return {}
+            data = Utils.queryIPinfos(ip, s, token, api)
+            if api == "ipinfo":
+                return {'country': data['country'], 'city': data['city'], 'region': data['region'],
+                        'org': data['org'],
+                        'latitude': data['loc'].split(",")[0], 'longitude': data['loc'].split(",")[1]}
 
-                if response.json().get('status') == '404':
-                    f"Error {response.json()}"
-                    pass
-                    
-                if token:
-                    return {'country': data['country'], 'city': data['city'], 'region': data['region'], 'org': data['org'],
-                            'latitude': data['loc'].split(",")[0], 'longitude': data['loc'].split(",")[1]}
-                else:
-                    return {'country': data['country'], 'city': data['city'], 'region': data['region'], 'org': data['org'], 'latitude': data['latitude'], 'longitude': data['longitude']}
-            else:
-                print(f"Data error {response.json()}")
-                # try with ipapi
-                response = Utils.queryIPinfos(ip, s)
+            elif api == "ipapi":
 
-                if response.ok:
-                    data = response.json()
-                    if response.json().get('error'):
-                        print(f"Error {response.json()}")
-                        return {}
+                # if ipapi is ratelimited, try to fallback to ipinfo
+                if data.get('error') == "ratelimited" and token:
+                    print("fallback on ipinfo")
+                    data = Utils.queryIPinfos(ip, s, token, "ipinfo")
                     return {'country': data['country'], 'city': data['city'], 'region': data['region'],
-                            'org': data['org'], 'latitude': data['latitude'], 'longitude': data['longitude']}
-                else:
-                    return {}
-        except requests.RequestException as e:
-            print(e)
+                            'org': data['org'],
+                            'latitude': data['loc'].split(",")[0], 'longitude': data['loc'].split(",")[1]}
+
+                if data['latitude'] is None or data['longitude'] is None and token:
+                    coordinatesIPinfo = Utils.queryIPinfos(ip, s, token, "ipinfo")
+                    latitude = coordinatesIPinfo['loc'].split(",")[0]
+                    longitude = coordinatesIPinfo['loc'].split(",")[1]
+                    return {'country': data['country'], 'city': data['city'], 'region': data['region'],
+                        'org': data['org'],
+                        'asn': data['asn'], 'latitude': latitude, 'longitude': longitude}
+
+                return {'country': data['country'], 'city': data['city'], 'region': data['region'],
+                        'org': data['org'],
+                        'asn': data['asn'], 'latitude': data['latitude'], 'longitude': data['longitude']}
+
+        except (KeyError, ValueError) as e:
+            print(f"Key/Value error {e} on getCountry, ip {ip}")
             return {}
