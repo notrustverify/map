@@ -1,7 +1,7 @@
 import logging
 import threading
 import time
-from os.path import exists
+from os.path import exists,getsize
 import schedule
 from flask import Flask, request, jsonify
 from flask_restful import Resource, Api
@@ -45,7 +45,7 @@ class Gateways(Resource):
 
 
 def update():
-    if not (exists("./data/data.db")):
+    if not (exists("./data/data.db")) or getsize("./data/data.db") <=0:
         create_tables()
 
     main_logger.info('Start DB update thread')
