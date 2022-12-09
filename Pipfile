@@ -19,8 +19,6 @@ flask-restful = "*"
 gunicorn = "*"
 aiohttp = "*"
 python-dateutil = "*"
-wsgi = "*"
-
 
 [dev-packages]
 
