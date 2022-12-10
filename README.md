@@ -1,9 +1,13 @@
-## Nym nodes geo
+# Nym nodes geo
 
 There's no visual way to know where the gateway in the world, this repo aims to solve this by giving an API where the coordinates are retrieved from the public IP and return the country too
 
 
-An endpoint is available here: [https://map.notrustverify.ch/map/gateways](https://map.notrustverify.ch/map/gateways)
+## Endpoints
+
+### Gateways
+
+[https://map.notrustverify.ch/map/gateways](https://map.notrustverify.ch/map/gateways)
 
 ```json
 {
@@ -22,3 +26,15 @@ An endpoint is available here: [https://map.notrustverify.ch/map/gateways](https
     "last_update": "Fri, 09 Dec 2022 09:46:13 GMT"
 }
 ```
+
+### Gateways countries
+
+[https://map.notrustverify.ch/map/gateways/countries](https://map.notrustverify.ch/map/gateways/countries)
+
+### Gateways Organisation
+
+[https://map.notrustverify.ch/map/gateways/organisation](https://map.notrustverify.ch/map/gateways/organisation)
+
+### Gateways AS
+
+[https://map.notrustverify.ch/map/gateways/asn](https://map.notrustverify.ch/map/gateways/asn)
