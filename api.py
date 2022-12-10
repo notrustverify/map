@@ -24,6 +24,64 @@ console_handler.setFormatter(logging.Formatter(log_file_format))
 main_logger.addHandler(console_handler)
 
 
+class GatewaysAS(Resource):
+    def get(self):
+        data = self.read_data()
+        response = jsonify(data)
+        return response
+
+    @cached(cache={})
+    def read_data(self):
+        data = {}
+        db = BaseModel()
+
+        response = db.getGatewaysAS(intervalHour=Utils.GATEWAY_LAST_UPDATE_HOUR)
+        data.update({
+            "asn": response,
+            "num_uniq_asn": len(response),
+            "last_update": db.getLastUpdate()['updated_on'],
+        })
+
+        return data
+class GatewaysOrg(Resource):
+    def get(self):
+        data = self.read_data()
+        response = jsonify(data)
+        return response
+
+    @cached(cache={})
+    def read_data(self):
+        data = {}
+        db = BaseModel()
+
+        response = db.getGatewaysOrg(intervalHour=Utils.GATEWAY_LAST_UPDATE_HOUR)
+        data.update({
+            "orgs": response,
+            "num_uniq_org": len(response),
+            "last_update": db.getLastUpdate()['updated_on'],
+        })
+
+        return data
+class GatewaysCountries(Resource):
+    def get(self):
+        data = self.read_data()
+        response = jsonify(data)
+        return response
+
+    @cached(cache={})
+    def read_data(self):
+        data = {}
+        db = BaseModel()
+
+        countries = db.getGatewaysCountry(intervalHour=Utils.GATEWAY_LAST_UPDATE_HOUR)
+        data.update({
+            "countries": countries,
+            "num_uniq_countries": len(countries),
+            "last_update": db.getLastUpdate()['updated_on'],
+        })
+
+        return data
+
 class Gateways(Resource):
     def get(self):
         data = self.read_data()
@@ -65,6 +123,9 @@ th = threading.Thread(target=update)
 th.start()
 
 api.add_resource(Gateways, '/map/gateways')
+api.add_resource(GatewaysCountries, '/map/gateways/countries')
+api.add_resource(GatewaysOrg, '/map/gateways/orgs')
+api.add_resource(GatewaysAS, '/map/gateways/asn')
 
 if __name__ == '__main__':
     host = '0.0.0.0'
