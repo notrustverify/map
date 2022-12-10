@@ -139,11 +139,11 @@ class BaseModel(Model):
                     nowDelta = datetime.utcnow() - timedelta(hours=intervalHour)
 
                     return list(GatewayCoordinate.select(
-                        GatewayCoordinate.country, fn.COUNT(GatewayCoordinate.country).alias('count')).where(
+                        GatewayCoordinate.country, fn.COUNT(GatewayCoordinate.country).alias('occ')).where(
                         GatewayCoordinate.updated_on >= nowDelta).group_by(GatewayCoordinate.country).dicts())
 
                 return list(GatewayCoordinate.select(
-                    GatewayCoordinate.country, fn.COUNT(GatewayCoordinate.country).alias('count')).group_by(
+                    GatewayCoordinate.country, fn.COUNT(GatewayCoordinate.country).alias('occ')).group_by(
                     GatewayCoordinate.country).dicts())
 
         except IntegrityError as e:
@@ -164,11 +164,11 @@ class BaseModel(Model):
                     nowDelta = datetime.utcnow() - timedelta(hours=intervalHour)
 
                     return list(GatewayCoordinate.select(
-                        GatewayCoordinate.asn, fn.COUNT(GatewayCoordinate.asn).alias('count')).where(
+                        GatewayCoordinate.asn, fn.COUNT(GatewayCoordinate.asn).alias('occ')).where(
                         GatewayCoordinate.updated_on >= nowDelta).group_by(GatewayCoordinate.asn).dicts())
 
                 return list(GatewayCoordinate.select(
-                    GatewayCoordinate.asn, fn.COUNT(GatewayCoordinate.asn).alias('count')).group_by(
+                    GatewayCoordinate.asn, fn.COUNT(GatewayCoordinate.asn).alias('occ')).group_by(
                     GatewayCoordinate.asn).dicts())
 
         except IntegrityError as e:
