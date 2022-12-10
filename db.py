@@ -189,11 +189,11 @@ class BaseModel(Model):
                     nowDelta = datetime.utcnow() - timedelta(hours=intervalHour)
 
                     return list(GatewayCoordinate.select(
-                        GatewayCoordinate.org, fn.COUNT(GatewayCoordinate.org).alias('count')).where(
+                        GatewayCoordinate.org, fn.COUNT(GatewayCoordinate.org).alias('occ')).where(
                         GatewayCoordinate.updated_on >= nowDelta).group_by(GatewayCoordinate.org).dicts())
 
                 return list(GatewayCoordinate.select(
-                    GatewayCoordinate.org, fn.COUNT(GatewayCoordinate.org).alias('count')).group_by(
+                    GatewayCoordinate.org, fn.COUNT(GatewayCoordinate.org).alias('occ')).group_by(
                     GatewayCoordinate.org).dicts())
 
         except IntegrityError as e:
