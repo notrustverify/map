@@ -4,12 +4,17 @@ import matplotlib
 import geopandas as gpd
 import matplotlib.pyplot as plt
 import plotly.graph_objects as go
+from db import BaseModel
+from utils import Utils
+from collections import Counter
 
 if __name__ == '__main__':
-    mapping = mapNodes.MapNodes()
-    coord = mapping.getGateways()
+    db = BaseModel()
+    countries = db.getGatewaysCountry(intervalHour=24)
+    print(countries)
 
 
+    """
     fig, ax = plt.subplots(figsize=(8,6))
     df =  pd.DataFrame(coord,columns=['latitude','longitude'])
 
@@ -21,3 +26,4 @@ if __name__ == '__main__':
         ))
     
     fig.show()
+    """

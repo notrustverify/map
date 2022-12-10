@@ -1,3 +1,4 @@
+data/geoip2/*.mmdb
 data/data.db
 .env
 .idea/

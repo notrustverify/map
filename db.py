@@ -42,7 +42,7 @@ class BaseModel(Model):
         finally:
             self.close()
 
-    def insertGateway(self, identityKey, ip, latitude, longitude, country,org,asn):
+    def insertGateway(self, identityKey, ip, latitude, longitude, country, org, asn):
         self.connect()
         try:
             with database.atomic():
@@ -50,11 +50,11 @@ class BaseModel(Model):
                 now = datetime.utcnow()
 
                 GatewayCoordinate.insert(identityKey=identityKey, ip=ip, latitude=latitude, longitude=longitude,
-                                         country=country, org=org,asn=asn, updated_on=now, created_on=now
+                                         country=country, org=org, asn=asn, updated_on=now, created_on=now
                                          ).on_conflict(action="update", conflict_target=[GatewayCoordinate.identityKey],
                                                        update={'identityKey': identityKey, 'ip': ip,
                                                                'latitude': latitude, 'longitude': longitude,
-                                                               'country': country, 'asn': asn,'org': org,
+                                                               'country': country, 'asn': asn, 'org': org,
                                                                'updated_on': datetime.utcnow()}).execute()
 
         except IntegrityError as e:
@@ -110,14 +110,91 @@ class BaseModel(Model):
                     nowDelta = datetime.utcnow() - timedelta(hours=intervalHour)
                     return list(GatewayCoordinate.select(GatewayCoordinate.identityKey, GatewayCoordinate.latitude,
                                                          GatewayCoordinate.longitude,
-                                                         GatewayCoordinate.country, GatewayCoordinate.asn,GatewayCoordinate.org, GatewayCoordinate.created_on,
+                                                         GatewayCoordinate.country, GatewayCoordinate.asn,
+                                                         GatewayCoordinate.org, GatewayCoordinate.created_on,
                                                          GatewayCoordinate.updated_on).where(
                         GatewayCoordinate.updated_on >= nowDelta).dicts())
 
                 return list(GatewayCoordinate.select(GatewayCoordinate.identityKey, GatewayCoordinate.latitude,
                                                      GatewayCoordinate.longitude,
-                                                     GatewayCoordinate.country,GatewayCoordinate.asn,GatewayCoordinate.org, GatewayCoordinate.created_on,
+                                                     GatewayCoordinate.country, GatewayCoordinate.asn,
+                                                     GatewayCoordinate.org, GatewayCoordinate.created_on,
                                                      GatewayCoordinate.updated_on).dicts())
+
+        except IntegrityError as e:
+            logHandler.exception(e)
+            return False
+        except DoesNotExist as e:
+            logHandler.exception(e)
+            return False
+        finally:
+            self.close()
+
+    def getGatewaysCountry(self, intervalHour=0):
+        self.connect()
+        try:
+            with database.atomic():
+
+                if intervalHour > 0:
+                    nowDelta = datetime.utcnow() - timedelta(hours=intervalHour)
+
+                    return list(GatewayCoordinate.select(
+                        GatewayCoordinate.country, fn.COUNT(GatewayCoordinate.country).alias('count')).where(
+                        GatewayCoordinate.updated_on >= nowDelta).group_by(GatewayCoordinate.country).dicts())
+
+                return list(GatewayCoordinate.select(
+                    GatewayCoordinate.country, fn.COUNT(GatewayCoordinate.country).alias('count')).group_by(
+                    GatewayCoordinate.country).dicts())
+
+        except IntegrityError as e:
+            logHandler.exception(e)
+            return False
+        except DoesNotExist as e:
+            logHandler.exception(e)
+            return False
+        finally:
+            self.close()
+
+    def getGatewaysAS(self, intervalHour=0):
+        self.connect()
+        try:
+            with database.atomic():
+
+                if intervalHour > 0:
+                    nowDelta = datetime.utcnow() - timedelta(hours=intervalHour)
+
+                    return list(GatewayCoordinate.select(
+                        GatewayCoordinate.asn, fn.COUNT(GatewayCoordinate.asn).alias('count')).where(
+                        GatewayCoordinate.updated_on >= nowDelta).group_by(GatewayCoordinate.asn).dicts())
+
+                return list(GatewayCoordinate.select(
+                    GatewayCoordinate.asn, fn.COUNT(GatewayCoordinate.asn).alias('count')).group_by(
+                    GatewayCoordinate.asn).dicts())
+
+        except IntegrityError as e:
+            logHandler.exception(e)
+            return False
+        except DoesNotExist as e:
+            logHandler.exception(e)
+            return False
+        finally:
+            self.close()
+
+    def getGatewaysOrg(self, intervalHour=0):
+        self.connect()
+        try:
+            with database.atomic():
+
+                if intervalHour > 0:
+                    nowDelta = datetime.utcnow() - timedelta(hours=intervalHour)
+
+                    return list(GatewayCoordinate.select(
+                        GatewayCoordinate.org, fn.COUNT(GatewayCoordinate.org).alias('count')).where(
+                        GatewayCoordinate.updated_on >= nowDelta).group_by(GatewayCoordinate.org).dicts())
+
+                return list(GatewayCoordinate.select(
+                    GatewayCoordinate.org, fn.COUNT(GatewayCoordinate.org).alias('count')).group_by(
+                    GatewayCoordinate.org).dicts())
 
         except IntegrityError as e:
             logHandler.exception(e)

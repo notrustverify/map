@@ -53,13 +53,13 @@ class MapNodes:
                         countryCoordinates.append([latitude,longitude])
 
                         try:
-                            #countryCounter[country] = countryCounter[country]+1
+                            countryCounter[country] = countryCounter[country]+1
                             #countryCounter[org] = countryCounter[org] + 1
-                            countryCounter[asn] = countryCounter[asn] + 1
+                            #countryCounter[asn] = countryCounter[asn] + 1
                         except KeyError:
-                            #countryCounter[country] = 1
+                            countryCounter[country] = 1
                             #countryCounter[org] = 1
-                            countryCounter[asn] = 1
+                            #countryCounter[asn] = 1
 
                         if ipInfo:
                             self.db.insertGateway(identityKey, ip, latitude, longitude, country,org,asn)
