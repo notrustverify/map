@@ -27,14 +27,19 @@ There's no visual way to know where the gateway in the world, this repo aims to 
 }
 ```
 
-### Gateways countries
+### Countries
 
 [https://map.notrustverify.ch/map/gateways/countries](https://map.notrustverify.ch/map/gateways/countries)
 
-### Gateways Organisation
+### Organisations
 
 [https://map.notrustverify.ch/map/gateways/organisation](https://map.notrustverify.ch/map/gateways/organisation)
 
-### Gateways AS
+### AS
 
 [https://map.notrustverify.ch/map/gateways/asn](https://map.notrustverify.ch/map/gateways/asn)
+
+
+### Continents
+
+[https://map.notrustverify.ch/map/gateways/continents](https://map.notrustverify.ch/map/gateways/continents)
