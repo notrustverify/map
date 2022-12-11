@@ -42,4 +42,4 @@ There's no visual way to know where the gateway in the world, this repo aims to 
 
 ### Continents
 
-[https://map.notrustverify.ch/map/gateways/asn](https://map.notrustverify.ch/map/gateways/asn)
+[https://map.notrustverify.ch/map/gateways/continents](https://map.notrustverify.ch/map/gateways/continents)
