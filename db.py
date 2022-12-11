@@ -42,7 +42,7 @@ class BaseModel(Model):
         finally:
             self.close()
 
-    def insertGateway(self, identityKey, ip, latitude, longitude, country, org, asn):
+    def insertGateway(self, identityKey, ip, latitude, longitude, country, org, asn,continent):
         self.connect()
         try:
             with database.atomic():
@@ -50,11 +50,11 @@ class BaseModel(Model):
                 now = datetime.utcnow()
 
                 GatewayCoordinate.insert(identityKey=identityKey, ip=ip, latitude=latitude, longitude=longitude,
-                                         country=country, org=org, asn=asn, updated_on=now, created_on=now
+                                         country=country, org=org, asn=asn, continent=continent,updated_on=now, created_on=now
                                          ).on_conflict(action="update", conflict_target=[GatewayCoordinate.identityKey],
                                                        update={'identityKey': identityKey, 'ip': ip,
                                                                'latitude': latitude, 'longitude': longitude,
-                                                               'country': country, 'asn': asn, 'org': org,
+                                                               'country': country, 'asn': asn, 'org': org, 'continent': continent,
                                                                'updated_on': datetime.utcnow()}).execute()
 
         except IntegrityError as e:
@@ -205,6 +205,54 @@ class BaseModel(Model):
         finally:
             self.close()
 
+    def getGatewaysContinents(self, intervalHour=0):
+        self.connect()
+        try:
+            with database.atomic():
+
+                if intervalHour > 0:
+                    nowDelta = datetime.utcnow() - timedelta(hours=intervalHour)
+
+                    return list(GatewayCoordinate.select(
+                        GatewayCoordinate.continent, fn.COUNT(GatewayCoordinate.continent).alias('occ')).where(
+                        GatewayCoordinate.updated_on >= nowDelta).group_by(GatewayCoordinate.continent).dicts())
+
+                return list(GatewayCoordinate.select(
+                    GatewayCoordinate.continent, fn.COUNT(GatewayCoordinate.continent).alias('occ')).group_by(
+                    GatewayCoordinate.continent).dicts())
+
+        except IntegrityError as e:
+            logHandler.exception(e)
+            return False
+        except DoesNotExist as e:
+            logHandler.exception(e)
+            return False
+        finally:
+            self.close()
+
+    def getNumGateways(self, intervalHour=0):
+        self.connect()
+        try:
+            with database.atomic():
+
+                if intervalHour > 0:
+                    nowDelta = datetime.utcnow() - timedelta(hours=intervalHour)
+
+                    return GatewayCoordinate.select(
+                        GatewayCoordinate.identityKey).count().where(
+                        GatewayCoordinate.updated_on >= nowDelta).count()
+
+                return GatewayCoordinate.select(
+                        GatewayCoordinate.identityKey).count()
+
+        except IntegrityError as e:
+            logHandler.exception(e)
+            return False
+        except DoesNotExist as e:
+            logHandler.exception(e)
+            return False
+        finally:
+            self.close()
 
 class GatewayCoordinate(BaseModel):
     class Meta:
@@ -218,6 +266,7 @@ class GatewayCoordinate(BaseModel):
     country = TextField(null=True)
     org = TextField(null=True)
     asn = TextField(null=True)
+    continent = TextField(null=True)
     created_on = DateTimeField(default=datetime.utcnow)
     updated_on = DateTimeField(default=datetime.utcnow)
 

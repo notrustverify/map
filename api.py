@@ -82,6 +82,27 @@ class GatewaysCountries(Resource):
 
         return data
 
+class GatewaysContinent(Resource):
+    def get(self):
+        data = self.read_data()
+        response = jsonify(data)
+        return response
+
+    @cached(cache={})
+    def read_data(self):
+        data = {}
+        db = BaseModel()
+
+        continents = db.getGatewaysContinents(intervalHour=Utils.GATEWAY_LAST_UPDATE_HOUR)
+        data.update({
+            "continents": continents,
+            "num_uniq_countries": len(continents),
+            "num_gateways": db.getNumGateways(),
+            "last_update": db.getLastUpdate()['updated_on'],
+        })
+
+        return data
+
 class Gateways(Resource):
     def get(self):
         data = self.read_data()
@@ -110,9 +131,11 @@ def update():
     main_logger.info('Start DB update thread')
 
     mapping = mapNodes.MapNodes()
+    #Utils.updateGeoIP()
 
     mapping.getGateways()
     schedule.every(2).hours.at("00:00").do(mapping.getGateways)
+    schedule.every(2).days.do(Utils.updateGeoIP)
 
     while True:
         schedule.run_pending()
@@ -126,6 +149,7 @@ api.add_resource(Gateways, '/map/gateways')
 api.add_resource(GatewaysCountries, '/map/gateways/countries')
 api.add_resource(GatewaysOrg, '/map/gateways/orgs')
 api.add_resource(GatewaysAS, '/map/gateways/asn')
+api.add_resource(GatewaysContinent, '/map/gateways/continents')
 
 if __name__ == '__main__':
     host = '0.0.0.0'

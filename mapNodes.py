@@ -16,7 +16,6 @@ class MapNodes:
     def __init__(self):
         self.db = BaseModel()
 
-
     def getGateways(self):
         s = requests.Session()
         print(f"{datetime.datetime.utcnow()} - update gateway set")
@@ -27,22 +26,23 @@ class MapNodes:
 
             if response.ok:
                 gatewaySet = response.json()
-                
+
                 for gateway in gatewaySet:
                     if gateway.get('gateway') and gateway.get('gateway')['version'] in ACCEPTED_VERSION:
-                        
+
                         ip = gateway['gateway']['host']
                         identityKey = gateway['gateway']['identity_key']
 
-                        ipInfo = utils.Utils.getCountry(ip, s, Utils.IPINFO_TOKEN,api="ipapi")
+                        ipInfo = utils.Utils.getCountry(ip, s, Utils.IPINFO_TOKEN, api="ipapi")
 
                         latitude = ipInfo.get('latitude')
                         longitude = ipInfo.get('longitude')
                         country = ipInfo.get('country')
-                        org=ipInfo.get('org')
-                        asn=ipInfo.get('asn')
+                        org = ipInfo.get('org')
+                        asn = ipInfo.get('asn')
+                        continent = ipInfo.get('continent')
 
-                        if asn is None:
+                        if asn is None and org is not None:
                             asn = ipInfo.get('org').split(' ')
 
                             if len(asn) > 0 and asn[0].lower().startswith('as'):
@@ -50,23 +50,26 @@ class MapNodes:
                             else:
                                 asn = None
 
-                        countryCoordinates.append([latitude,longitude])
+                    countryCoordinates.append([latitude, longitude])
 
-                        try:
-                            countryCounter[country] = countryCounter[country]+1
-                            #countryCounter[org] = countryCounter[org] + 1
-                            #countryCounter[asn] = countryCounter[asn] + 1
-                        except KeyError:
-                            countryCounter[country] = 1
-                            #countryCounter[org] = 1
-                            #countryCounter[asn] = 1
+                    try:
+                        countryCounter[country] = countryCounter[country] + 1
+                        #countryCounter[continent] = countryCounter[continent] + 1
 
-                        if ipInfo:
-                            self.db.insertGateway(identityKey, ip, latitude, longitude, country,org,asn)
-                        
+                        # countryCounter[org] = countryCounter[org] + 1
+                        # countryCounter[asn] = countryCounter[asn] + 1
+                    except KeyError:
+                        countryCounter[continent] = 1
+                        # countryCounter[org] = 1
+                        # countryCounter[asn] = 1
+
+                    if ipInfo:
+                        self.db.insertGateway(identityKey, ip, latitude, longitude, country, org, asn, continent)
+
             print(countryCounter)
 
             return countryCoordinates
-        except (requests.RequestException,KeyError) as e:
+
+        except (requests.RequestException, KeyError) as e:
             print(traceback.format_exc())
             exit(1)

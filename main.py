@@ -1,3 +1,5 @@
+import geoip2.database
+
 import mapNodes
 import pandas as pd
 import matplotlib
@@ -10,6 +12,9 @@ from collections import Counter
 
 if __name__ == '__main__':
     db = BaseModel()
+    #Utils.updateGeoIP()
+
+    print(Utils.localGeoIP("213.55.244.217").get('city').continent.code)
     countries = db.getGatewaysCountry(intervalHour=24)
     print(countries)
 
