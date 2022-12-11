@@ -131,7 +131,7 @@ def update():
     main_logger.info('Start DB update thread')
 
     mapping = mapNodes.MapNodes()
-    #Utils.updateGeoIP()
+    Utils.updateGeoIP()
 
     mapping.getGateways()
     schedule.every(2).hours.at("00:00").do(mapping.getGateways)
