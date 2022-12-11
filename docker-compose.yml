@@ -19,6 +19,7 @@ services:
       - traefik-proxy
     volumes:
       - ./data/:/data/
+      - ./data/geoip2:/data/geoip2
 
 networks:
    traefik-proxy:
