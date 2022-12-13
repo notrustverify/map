@@ -8,7 +8,7 @@ from collections import Counter
 from db import BaseModel
 
 GATEWAYS = "/api/v1/gateways/"
-ACCEPTED_VERSION = ["1.1.0", "1.1.1", "1.1.2", "1.1.3", "1.2.0"]
+ACCEPTED_VERSION = ["1.1.x", "1.2.x"]
 
 
 class MapNodes:
@@ -28,7 +28,8 @@ class MapNodes:
                 gatewaySet = response.json()
 
                 for gateway in gatewaySet:
-                    if gateway.get('gateway') and gateway.get('gateway')['version'] in ACCEPTED_VERSION:
+                    # filter the version
+                    if gateway.get('gateway') and (gateway.get('gateway')['version'].split('.')[1] == ACCEPTED_VERSION[0].split('.')[1] or gateway.get('gateway')['version'].split('.')[1] == ACCEPTED_VERSION[1].split('.')[1]):
 
                         ip = gateway['gateway']['host']
                         identityKey = gateway['gateway']['identity_key']
