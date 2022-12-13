@@ -29,7 +29,8 @@ class MapNodes:
 
                 for gateway in gatewaySet:
                     # filter the version
-                    if gateway.get('gateway') and (gateway.get('gateway')['version'].split('.')[1] == ACCEPTED_VERSION[0].split('.')[1] or gateway.get('gateway')['version'].split('.')[1] == ACCEPTED_VERSION[1].split('.')[1]):
+                    if gateway.get('gateway') and (gateway.get('gateway')['version'].split('.')[1] == ACCEPTED_VERSION[0].split('.')[1] or
+                                                   gateway.get('gateway')['version'].split('.')[1] == ACCEPTED_VERSION[1].split('.')[1]):
 
                         ip = gateway['gateway']['host']
                         identityKey = gateway['gateway']['identity_key']
