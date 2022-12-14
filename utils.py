@@ -118,7 +118,11 @@ class Utils:
 
     @staticmethod
     def getIP(ip):
-        return socket.gethostbyname(ip)
+        try:
+            return socket.gethostbyname(ip)
+        except Exception as e:
+            print(f"error with {ip}, error {e}")
+            exit(1)
 
     @staticmethod
     def getCountry(ip, s, token, api="ipapi"):
@@ -128,7 +132,7 @@ class Utils:
             try:
                 continent = Utils.queryIPinfos(ip, s, api="geoip2").get('city').continent.code
                 #pprint(Utils.queryIPinfos(ip, s, api="geoip2"))
-            except (KeyError, geoip2.errors.GeoIP2Error) as e:
+            except (KeyError, geoip2.errors.GeoIP2Error,ValueError) as e:
                 continent = None
                 print(f"no continent found for {ip}, error {e}")
 
