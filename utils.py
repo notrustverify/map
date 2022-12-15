@@ -122,19 +122,20 @@ class Utils:
             return socket.gethostbyname(ip)
         except Exception as e:
             print(f"error with {ip}, error {e}")
-            exit(1)
+            return None
 
     @staticmethod
     def getCountry(ip, s, token, api="ipapi"):
         try:
 
             data = Utils.queryIPinfos(ip, s, token, api)
-            try:
-                continent = Utils.queryIPinfos(ip, s, api="geoip2").get('city').continent.code
-                #pprint(Utils.queryIPinfos(ip, s, api="geoip2"))
-            except (KeyError, geoip2.errors.GeoIP2Error,ValueError) as e:
-                continent = None
-                print(f"no continent found for {ip}, error {e}")
+            if api != "geoip2":
+                try:
+                    continent = Utils.queryIPinfos(ip, s, api="geoip2").get('city').continent.code
+                    #pprint(Utils.queryIPinfos(ip, s, api="geoip2"))
+                except (KeyError, geoip2.errors.GeoIP2Error,ValueError) as e:
+                    continent = None
+                    print(f"no continent found for {ip}, error {e}")
 
             if api == "ipinfo":
                 return {'country': data['country'], 'city': data['city'], 'region': data['region'],
@@ -171,8 +172,8 @@ class Utils:
                 return {'country': data['city'].country.iso_code,
                         'org': data['asn'].autonomous_system_organization,
                         'asn': data['asn'].autonomous_system_number, 'latitude': data['city'].location.latitude,
-                        'longitude': data['city'].location.longitude, 'continent': continent}
+                        'longitude': data['city'].location.longitude, 'continent': data['city'].continent.code}
 
-        except (KeyError, ValueError) as e:
+        except (KeyError, ValueError,IndexError) as e:
             print(f"Key/Value error {e} on getCountry, ip {ip}")
             return {}

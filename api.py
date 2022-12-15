@@ -135,6 +135,7 @@ def update():
 
     mapping.getGateways()
     schedule.every(2).hours.at("00:00").do(mapping.getGateways)
+    #schedule.every(1).second.do(mapping.getGateways)
     schedule.every(2).days.do(Utils.updateGeoIP)
 
     while True:

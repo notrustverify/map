@@ -35,7 +35,7 @@ class MapNodes:
                         ip = gateway['gateway']['host']
                         identityKey = gateway['gateway']['identity_key']
 
-                        ipInfo = utils.Utils.getCountry(ip, s, Utils.IPINFO_TOKEN, api="ipapi")
+                        ipInfo = utils.Utils.getCountry(ip, s, Utils.IPINFO_TOKEN, api="geoip2")
 
                         latitude = ipInfo.get('latitude')
                         longitude = ipInfo.get('longitude')
@@ -52,16 +52,14 @@ class MapNodes:
                             else:
                                 asn = None
 
-                    countryCoordinates.append([latitude, longitude])
-
                     try:
                         countryCounter[continent] = countryCounter[continent] + 1
-                        countryCounter[country] = countryCounter[country] + 1
+                        #countryCounter[country] = countryCounter[country] + 1
 
                         # countryCounter[org] = countryCounter[org] + 1
                         # countryCounter[asn] = countryCounter[asn] + 1
                     except KeyError:
-                        countryCounter[country] =  1
+                        #countryCounter[country] =  1
                         countryCounter[continent] = 1
                         # countryCounter[org] = 1
                         # countryCounter[asn] = 1
@@ -70,8 +68,6 @@ class MapNodes:
                         self.db.insertGateway(identityKey, ip, latitude, longitude, country, org, asn, continent)
 
             print(countryCounter)
-
-            return countryCoordinates
 
         except (requests.RequestException, KeyError) as e:
             print(traceback.format_exc())
