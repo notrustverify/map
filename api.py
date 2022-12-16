@@ -39,6 +39,7 @@ class GatewaysAS(Resource):
         data.update({
             "asn": response,
             "num_uniq_asn": len(response),
+            "num_gateways": db.getNumGateways(),
             "last_update": db.getLastUpdate()['updated_on'],
         })
 
@@ -58,6 +59,7 @@ class GatewaysOrg(Resource):
         data.update({
             "orgs": response,
             "num_uniq_org": len(response),
+            "num_gateways": db.getNumGateways(),
             "last_update": db.getLastUpdate()['updated_on'],
         })
 
@@ -77,6 +79,7 @@ class GatewaysCountries(Resource):
         data.update({
             "countries": countries,
             "num_uniq_countries": len(countries),
+            "num_gateways": db.getNumGateways(),
             "last_update": db.getLastUpdate()['updated_on'],
         })
 
@@ -124,6 +127,109 @@ class Gateways(Resource):
         return data
 
 
+class MixnodesAS(Resource):
+    def get(self):
+        data = self.read_data()
+        response = jsonify(data)
+        return response
+
+    @cached(cache={})
+    def read_data(self):
+        data = {}
+        db = BaseModel()
+
+        response = db.getMixnodesAS(intervalHour=Utils.GATEWAY_LAST_UPDATE_HOUR)
+        data.update({
+            "asn": response,
+            "num_uniq_asn": len(response),
+            "num_mixnodes": db.getNumMixnode(),
+            "last_update": db.getLastUpdate()['updated_on'],
+        })
+
+        return data
+class MixnodesOrg(Resource):
+    def get(self):
+        data = self.read_data()
+        response = jsonify(data)
+        return response
+
+    @cached(cache={})
+    def read_data(self):
+        data = {}
+        db = BaseModel()
+
+        response = db.getMixnodesOrg(intervalHour=Utils.GATEWAY_LAST_UPDATE_HOUR)
+        data.update({
+            "orgs": response,
+            "num_uniq_org": len(response),
+            "num_mixnodes": db.getNumMixnode(),
+            "last_update": db.getLastUpdate()['updated_on'],
+        })
+
+        return data
+class MixnodesCountries(Resource):
+    def get(self):
+        data = self.read_data()
+        response = jsonify(data)
+        return response
+
+    @cached(cache={})
+    def read_data(self):
+        data = {}
+        db = BaseModel()
+
+        countries = db.getMixnodesCountry(intervalHour=Utils.GATEWAY_LAST_UPDATE_HOUR)
+        data.update({
+            "countries": countries,
+            "num_uniq_countries": len(countries),
+            "num_mixnodes": db.getNumMixnode(),
+            "last_update": db.getLastUpdate()['updated_on'],
+        })
+
+        return data
+
+class MixnodesContinent(Resource):
+    def get(self):
+        data = self.read_data()
+        response = jsonify(data)
+        return response
+
+    @cached(cache={})
+    def read_data(self):
+        data = {}
+        db = BaseModel()
+
+        continents = db.getMixnodesContinents(intervalHour=Utils.GATEWAY_LAST_UPDATE_HOUR)
+        data.update({
+            "continents": continents,
+            "num_uniq_countries": len(continents),
+            "num_mixnodes": db.getNumMixnode(),
+            "last_update": db.getLastUpdate()['updated_on'],
+        })
+
+        return data
+
+class Mixnodes(Resource):
+    def get(self):
+        data = self.read_data()
+        response = jsonify(data)
+        return response
+
+    @cached(cache={})
+    def read_data(self):
+        data = {}
+        db = BaseModel()
+
+        mixnodes = db.getMixnodes(intervalHour=Utils.GATEWAY_LAST_UPDATE_HOUR)
+        data.update({
+            "mixnodes": mixnodes,
+            "num_mixnodes": len(mixnodes),
+            "last_update": db.getLastUpdate()['updated_on'],
+        })
+
+        return data
+
+
 def update():
     if not (exists("./data/data.db")) or getsize("./data/data.db") <= 0:
         create_tables()
@@ -134,7 +240,10 @@ def update():
     Utils.updateGeoIP()
 
     mapping.getGateways()
+    mapping.getMixnodes()
     schedule.every(2).hours.at("00:00").do(mapping.getGateways)
+    schedule.every(2).hours.at("00:00").do(mapping.getMixnodes)
+
     #schedule.every(1).second.do(mapping.getGateways)
     schedule.every(2).days.do(Utils.updateGeoIP)
 
@@ -151,6 +260,13 @@ api.add_resource(GatewaysCountries, '/map/gateways/countries')
 api.add_resource(GatewaysOrg, '/map/gateways/orgs')
 api.add_resource(GatewaysAS, '/map/gateways/asn')
 api.add_resource(GatewaysContinent, '/map/gateways/continents')
+
+
+api.add_resource(Mixnodes, '/map/mixnodes')
+api.add_resource(MixnodesCountries, '/map/mixnodes/countries')
+api.add_resource(MixnodesOrg, '/map/mixnodes/orgs')
+api.add_resource(MixnodesAS, '/map/mixnodes/asn')
+api.add_resource(MixnodesContinent, '/map/mixnodes/continents')
 
 if __name__ == '__main__':
     host = '0.0.0.0'

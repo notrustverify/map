@@ -68,6 +68,33 @@ class BaseModel(Model):
         finally:
             self.close()
 
+
+    def insertMixnode(self, identityKey, ip, latitude, longitude, country, org, asn,continent):
+        self.connect()
+        try:
+            with database.atomic():
+
+                now = datetime.utcnow()
+
+                MixnodeCoordinate.insert(identityKey=identityKey, ip=ip, latitude=latitude, longitude=longitude,
+                                         country=country, org=org, asn=asn, continent=continent,updated_on=now, created_on=now
+                                         ).on_conflict(action="update", conflict_target=[MixnodeCoordinate.identityKey],
+                                                       update={'identityKey': identityKey, 'ip': ip,
+                                                               'latitude': latitude, 'longitude': longitude,
+                                                               'country': country, 'asn': asn, 'org': org, 'continent': continent,
+                                                               'updated_on': datetime.utcnow()}).execute()
+
+        except IntegrityError as e:
+            print(e)
+            print(traceback.format_exc())
+            return False
+        except DoesNotExist as e:
+            print(e)
+            print(traceback.format_exc())
+            return False
+        finally:
+            self.close()
+
     def getLastUpdate(self):
         self.connect()
 
@@ -254,6 +281,156 @@ class BaseModel(Model):
         finally:
             self.close()
 
+    def getMixnodes(self, intervalHour=0):
+        self.connect()
+        try:
+            with database.atomic():
+
+                if intervalHour > 0:
+                    nowDelta = datetime.utcnow() - timedelta(hours=intervalHour)
+                    return list(MixnodeCoordinate.select(MixnodeCoordinate.identityKey, MixnodeCoordinate.latitude,
+                                                         MixnodeCoordinate.longitude,
+                                                         MixnodeCoordinate.country, MixnodeCoordinate.asn,
+                                                         MixnodeCoordinate.org, MixnodeCoordinate.created_on,
+                                                         MixnodeCoordinate.updated_on).where(
+                        MixnodeCoordinate.updated_on >= nowDelta).dicts())
+
+                return list(MixnodeCoordinate.select(MixnodeCoordinate.identityKey, MixnodeCoordinate.latitude,
+                                                     MixnodeCoordinate.longitude,
+                                                     MixnodeCoordinate.country, MixnodeCoordinate.asn,
+                                                     MixnodeCoordinate.org, MixnodeCoordinate.created_on,
+                                                     MixnodeCoordinate.updated_on).dicts())
+
+        except IntegrityError as e:
+            logHandler.exception(e)
+            return False
+        except DoesNotExist as e:
+            logHandler.exception(e)
+            return False
+        finally:
+            self.close()
+
+
+    def getMixnodesCountry(self, intervalHour=0):
+        self.connect()
+        try:
+            with database.atomic():
+
+                if intervalHour > 0:
+                    nowDelta = datetime.utcnow() - timedelta(hours=intervalHour)
+
+                    return list(MixnodeCoordinate.select(
+                        MixnodeCoordinate.country, fn.COUNT(MixnodeCoordinate.country).alias('occ')).where(
+                        MixnodeCoordinate.updated_on >= nowDelta).group_by(MixnodeCoordinate.country).dicts())
+
+                return list(MixnodeCoordinate.select(
+                    MixnodeCoordinate.country, fn.COUNT(MixnodeCoordinate.country).alias('occ')).group_by(
+                    MixnodeCoordinate.country).dicts())
+
+        except IntegrityError as e:
+            logHandler.exception(e)
+            return False
+        except DoesNotExist as e:
+            logHandler.exception(e)
+            return False
+        finally:
+            self.close()
+    def getMixnodesAS(self, intervalHour=0):
+        self.connect()
+        try:
+            with database.atomic():
+
+                if intervalHour > 0:
+                    nowDelta = datetime.utcnow() - timedelta(hours=intervalHour)
+
+                    return list(MixnodeCoordinate.select(
+                        MixnodeCoordinate.asn, fn.COUNT(MixnodeCoordinate.asn).alias('occ')).where(
+                        MixnodeCoordinate.updated_on >= nowDelta).group_by(MixnodeCoordinate.asn).dicts())
+
+                return list(MixnodeCoordinate.select(
+                    MixnodeCoordinate.asn, fn.COUNT(MixnodeCoordinate.asn).alias('occ')).group_by(
+                    MixnodeCoordinate.asn).dicts())
+
+        except IntegrityError as e:
+            logHandler.exception(e)
+            return False
+        except DoesNotExist as e:
+            logHandler.exception(e)
+            return False
+        finally:
+            self.close()
+    def getMixnodesOrg(self, intervalHour=0):
+        self.connect()
+        try:
+            with database.atomic():
+
+                if intervalHour > 0:
+                    nowDelta = datetime.utcnow() - timedelta(hours=intervalHour)
+
+                    return list(MixnodeCoordinate.select(
+                        MixnodeCoordinate.org, fn.COUNT(MixnodeCoordinate.org).alias('occ')).where(
+                        MixnodeCoordinate.updated_on >= nowDelta).group_by(MixnodeCoordinate.org).dicts())
+
+                return list(MixnodeCoordinate.select(
+                    MixnodeCoordinate.org, fn.COUNT(MixnodeCoordinate.org).alias('occ')).group_by(
+                    MixnodeCoordinate.org).dicts())
+
+        except IntegrityError as e:
+            logHandler.exception(e)
+            return False
+        except DoesNotExist as e:
+            logHandler.exception(e)
+            return False
+        finally:
+            self.close()
+    def getMixnodesContinents(self, intervalHour=0):
+        self.connect()
+        try:
+            with database.atomic():
+
+                if intervalHour > 0:
+                    nowDelta = datetime.utcnow() - timedelta(hours=intervalHour)
+
+                    return list(MixnodeCoordinate.select(
+                        MixnodeCoordinate.continent, fn.COUNT(MixnodeCoordinate.continent).alias('occ')).where(
+                        MixnodeCoordinate.updated_on >= nowDelta).group_by(MixnodeCoordinate.continent).dicts())
+
+                return list(MixnodeCoordinate.select(
+                    MixnodeCoordinate.continent, fn.COUNT(MixnodeCoordinate.continent).alias('occ')).group_by(
+                    MixnodeCoordinate.continent).dicts())
+
+        except IntegrityError as e:
+            logHandler.exception(e)
+            return False
+        except DoesNotExist as e:
+            logHandler.exception(e)
+            return False
+        finally:
+            self.close()
+    def getNumMixnode(self, intervalHour=0):
+        self.connect()
+        try:
+            with database.atomic():
+
+                if intervalHour > 0:
+                    nowDelta = datetime.utcnow() - timedelta(hours=intervalHour)
+
+                    return MixnodeCoordinate.select(
+                        MixnodeCoordinate.identityKey).count().where(
+                        MixnodeCoordinate.updated_on >= nowDelta).count()
+
+                return MixnodeCoordinate.select(
+                        MixnodeCoordinate.identityKey).count()
+
+        except IntegrityError as e:
+            logHandler.exception(e)
+            return False
+        except DoesNotExist as e:
+            logHandler.exception(e)
+            return False
+        finally:
+            self.close()
+
 class GatewayCoordinate(BaseModel):
     class Meta:
         database = database
@@ -271,6 +448,23 @@ class GatewayCoordinate(BaseModel):
     updated_on = DateTimeField(default=datetime.utcnow)
 
 
+class MixnodeCoordinate(BaseModel):
+    class Meta:
+        database = database
+        db_table = 'mixnode_coordinate'
+
+    identityKey = TextField(unique=True)
+    ip = TextField()
+    latitude = FloatField(null=True)
+    longitude = FloatField(null=True)
+    country = TextField(null=True)
+    org = TextField(null=True)
+    asn = TextField(null=True)
+    continent = TextField(null=True)
+    created_on = DateTimeField(default=datetime.utcnow)
+    updated_on = DateTimeField(default=datetime.utcnow)
+
+
 def create_tables():
     with database:
-        database.create_tables([GatewayCoordinate])
+        database.create_tables([GatewayCoordinate,MixnodeCoordinate])
