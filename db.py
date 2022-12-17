@@ -119,14 +119,14 @@ class BaseModel(Model):
                     return list(GatewayCoordinate.select(GatewayCoordinate.identityKey, GatewayCoordinate.latitude,
                                                          GatewayCoordinate.longitude,
                                                          GatewayCoordinate.country, GatewayCoordinate.asn,
-                                                         GatewayCoordinate.org, GatewayCoordinate.created_on,
+                                                         GatewayCoordinate.org, GatewayCoordinate.continent,GatewayCoordinate.created_on,
                                                          GatewayCoordinate.updated_on).where(
                         GatewayCoordinate.updated_on >= nowDelta).dicts())
 
                 return list(GatewayCoordinate.select(GatewayCoordinate.identityKey, GatewayCoordinate.latitude,
                                                      GatewayCoordinate.longitude,
                                                      GatewayCoordinate.country, GatewayCoordinate.asn,
-                                                     GatewayCoordinate.org, GatewayCoordinate.created_on,
+                                                     GatewayCoordinate.org, GatewayCoordinate.continent,GatewayCoordinate.created_on,
                                                      GatewayCoordinate.updated_on).dicts())
 
         except IntegrityError as e:
@@ -272,14 +272,14 @@ class BaseModel(Model):
                     return list(MixnodeCoordinate.select(MixnodeCoordinate.identityKey, MixnodeCoordinate.latitude,
                                                          MixnodeCoordinate.longitude,
                                                          MixnodeCoordinate.country, MixnodeCoordinate.asn,
-                                                         MixnodeCoordinate.org, MixnodeCoordinate.created_on,
+                                                         MixnodeCoordinate.org, MixnodeCoordinate.continent,MixnodeCoordinate.created_on,
                                                          MixnodeCoordinate.updated_on).where(
                         MixnodeCoordinate.updated_on >= nowDelta).dicts())
 
                 return list(MixnodeCoordinate.select(MixnodeCoordinate.identityKey, MixnodeCoordinate.latitude,
                                                      MixnodeCoordinate.longitude,
                                                      MixnodeCoordinate.country, MixnodeCoordinate.asn,
-                                                     MixnodeCoordinate.org, MixnodeCoordinate.created_on,
+                                                     MixnodeCoordinate.org, MixnodeCoordinate.continent,MixnodeCoordinate.created_on,
                                                      MixnodeCoordinate.updated_on).dicts())
 
         except IntegrityError as e:
