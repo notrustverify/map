@@ -1,21 +1,23 @@
 import datetime
+import functools
 import os
 import shutil
 import time
 import ipaddress
 import traceback
-from pprint import pprint
-
+import backoff
 import geoip2.database
 import geoip2.errors
 import requests
 import socket
 from dotenv import load_dotenv
 import tarfile
-from pathlib import Path
+import schedule
 
 NYM_VALIDATOR_API_BASE = "https://validator.nymtech.net"
 PREFERRED_IPINFO_API = "ipapi"
+BACKOFF_MAX_TRIES = 120
+BACKOFF_ALGO = backoff.fibo
 
 load_dotenv()
 
@@ -27,6 +29,22 @@ class Utils:
     GEO_IP_EDITION = ['GeoLite2-City', 'GeoLite2-ASN', 'GeoLite2-Country']
     GEO_IP_FOLDER_DATA = f"./data/geoip2"
 
+    @staticmethod
+    def catch_exceptions(cancel_on_failure=False):
+        def catch_exceptions_decorator(job_func):
+            @functools.wraps(job_func)
+            def wrapper(*args, **kwargs):
+                try:
+                    return job_func(*args, **kwargs)
+                except:
+                    import traceback
+                    print(traceback.format_exc())
+                    if cancel_on_failure:
+                        return schedule.CancelJob
+
+            return wrapper
+
+        return catch_exceptions_decorator
     @staticmethod
     def humanFormat(num, round_to=2):
         # From https://stackoverflow.com/questions/579310/formatting-long-numbers-as-strings-in-python

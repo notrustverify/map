@@ -1,6 +1,6 @@
 import datetime
 import traceback
-
+import backoff
 import requests
 
 import utils
@@ -10,6 +10,7 @@ from utils import Utils
 GATEWAYS = "/api/v1/gateways/"
 MIXNODES = "/api/v1/mixnodes/"
 ACCEPTED_VERSION = ["1.1.x", "1.2.x"]
+
 
 
 class MapNodes:
@@ -71,10 +72,13 @@ class MapNodes:
 
             print(countryCounter)
 
-        except (requests.RequestException, KeyError) as e:
+        except (requests.RequestException, KeyError,ConnectionError) as e:
+            print(f"Error getting node info --> {e}")
             print(traceback.format_exc())
-            exit(1)
 
+
+    @backoff.on_exception(utils.BACKOFF_ALGO, (requests.exceptions.ConnectionError, requests.exceptions.Timeout),
+                          max_tries=utils.BACKOFF_MAX_TRIES)
     def getMixnodes(self):
         s = requests.Session()
         print(f"{datetime.datetime.utcnow()} - update mixnodes set")
@@ -101,6 +105,8 @@ class MapNodes:
 
                         api = "geoip2"
                         ipInfo = utils.Utils.getCountry(ip, s, Utils.IPINFO_TOKEN, api=api)
+                        if ipInfo is {}:
+                            continue
 
                         latitude = ipInfo.get('latitude')
                         longitude = ipInfo.get('longitude')
@@ -134,6 +140,6 @@ class MapNodes:
 
             print(countryCounter)
 
-        except (requests.RequestException, KeyError) as e:
+        except (requests.RequestException, KeyError,ConnectionError) as e:
+            print(f"Error getting node info --> {e}")
             print(traceback.format_exc())
-            exit(1)
