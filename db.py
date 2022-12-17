@@ -24,23 +24,6 @@ class BaseModel(Model):
         except Exception as e:
             print(traceback.format_exc())
 
-    def getPacketsLastUpdate(self):
-        self.connect()
-
-        try:
-            with database.atomic():
-                return None
-
-        except IntegrityError as e:
-            print(e)
-            print(traceback.format_exc())
-            return False
-        except DoesNotExist as e:
-            print(e)
-            print(traceback.format_exc())
-            return False
-        finally:
-            self.close()
 
     def insertGateway(self, identityKey, ip, latitude, longitude, country, org, asn,continent):
         self.connect()
@@ -67,8 +50,6 @@ class BaseModel(Model):
             return False
         finally:
             self.close()
-
-
     def insertMixnode(self, identityKey, ip, latitude, longitude, country, org, asn,continent):
         self.connect()
         try:

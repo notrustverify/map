@@ -40,11 +40,17 @@ class Utils:
     def isIP(ip):
         try:
             ipaddress.ip_address(ip)
-        except ValueError:
+        except Exception:
             return False
 
         return True
 
+    def getIP(ip):
+        try:
+            return socket.gethostbyname(ip)
+        except Exception as e:
+            print(f"error with {ip}, error {e}")
+            return None
     @staticmethod
     def updateGeoIP():
         print(f"{datetime.datetime.utcnow()} - update geoip DB")
@@ -69,7 +75,7 @@ class Utils:
 
             except Exception as e:
                 print(f"Error with geoip update: {e}")
-                pass
+
 
     # have to rewrite it at some time
     @staticmethod
@@ -90,6 +96,9 @@ class Utils:
     def queryIPinfos(ip, s, token=None, api=None):
         if not (Utils.isIP(ip)):
             ip = Utils.getIP(ip)
+
+        if ip is None:
+            return {}
 
         if api == "ipinfo":
             url = f'https://ipinfo.io/{ip}?token={token}'
@@ -117,18 +126,17 @@ class Utils:
             print(traceback.format_exc())
 
     @staticmethod
-    def getIP(ip):
-        try:
-            return socket.gethostbyname(ip)
-        except Exception as e:
-            print(f"error with {ip}, error {e}")
-            return None
+
 
     @staticmethod
     def getCountry(ip, s, token, api="ipapi"):
         try:
 
             data = Utils.queryIPinfos(ip, s, token, api)
+
+            if data is None:
+                return {}
+
             if api != "geoip2":
                 try:
                     continent = Utils.queryIPinfos(ip, s, api="geoip2").get('city').continent.code

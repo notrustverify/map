@@ -15,6 +15,10 @@ if __name__ == '__main__':
     #Utils.updateGeoIP()
 
     #print(Utils.localGeoIP("213.55.244.217").get('city').continent.code)
+    if not (Utils.isIP("sdasdasdas")):
+        ip = Utils.getIP("sdasdasdas")
+        print(ip)
+
     mapNodes.MapNodes().getMixnodes()
     #countries = db.getGatewaysCountry(intervalHour=24)
     #print(countries)
