@@ -149,8 +149,11 @@ class Utils:
     @staticmethod
     def getCountry(ip, s, token, api="ipapi"):
         try:
-
-            data = Utils.queryIPinfos(ip, s, token, api)
+            try:
+                data = Utils.queryIPinfos(ip, s, token, api)
+            except (KeyError, geoip2.errors.GeoIP2Error, ValueError) as e:
+                print(f"Error {ip}, error {e}")
+                data = None
 
             if data is None:
                 return {}
@@ -159,7 +162,7 @@ class Utils:
                 try:
                     continent = Utils.queryIPinfos(ip, s, api="geoip2").get('city').continent.code
                     #pprint(Utils.queryIPinfos(ip, s, api="geoip2"))
-                except (KeyError, geoip2.errors.GeoIP2Error,ValueError) as e:
+                except (KeyError, geoip2.errors.GeoIP2Error, ValueError) as e:
                     continent = None
                     print(f"no continent found for {ip}, error {e}")
 
